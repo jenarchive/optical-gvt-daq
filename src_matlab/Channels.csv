@@ -1,0 +1,59 @@
+﻿Slot,Card,Channel,Input_Output,Measurement_Type,Bridge_Type,Resistance,Gauge_Factor,Range,Name,Excitation_Required,Excitation_Voltage,Current,Input_Unit,Output_Unit,Sensitivity,Gain,Offset,Max,QtrBridge,ToInflux,Zero,Disable,Comments
+2,PXIe-4330,ai1,in,Strain Gauge,Quarter,350,2.13597,,ROOT45AL,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,TRUE,Strain gauge at 0m from root  45deg orientation aluminium side
+2,PXIe-4330,ai2,in,Strain Gauge,Quarter,350,2.13597,,ROOT0AL,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 0m from root 0deg orientation aluminium side
+2,PXIe-4330,ai3,in,Strain Gauge,Quarter,350,2.13597,,ROOT90AL,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 0m from root 90deg orientation aluminium side
+2,PXIe-4330,ai4,in,Strain Gauge,Quarter,350,2.13597,,204545AL,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 2.045m from root  45deg orientation aluminium side
+2,PXIe-4330,ai5,in,Strain Gauge,Quarter,350,2.13597,,20450AL,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 2.045m from root 0deg orientation aluminium side
+2,PXIe-4330,ai6,in,Strain Gauge,Quarter,350,2.13597,,204590AL,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 2.045m from root 90deg orientation aluminium side
+2,PXIe-4330,ai7,in,Strain Gauge,Quarter,350,2.13597,,204545F,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 2.045m from root  45deg orientation foam side
+3,PXIe-4330,ai0,in,Strain Gauge,Quarter,350,2.13597,,20450F,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 2.045m from root 0deg orientation foam side
+3,PXIe-4330,ai1,in,Strain Gauge,Quarter,350,2.13597,,204590F,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 2.045m from root 90deg orientation foam side
+3,PXIe-4330,ai2,in,Strain Gauge,Quarter,350,2.13597,,151045AL,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 1.510m from root  45deg orientation aluminium side
+3,PXIe-4330,ai3,in,Strain Gauge,Quarter,350,2.13597,,15100AL,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 1.510m from root  0deg orientation aluminium side
+3,PXIe-4330,ai4,in,Strain Gauge,Quarter,350,2.13597,,151090AL,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 1.510m from root  90deg orientation aluminium side
+3,PXIe-4330,ai5,in,Strain Gauge,Quarter,350,2.13597,,151045F,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 1.510m from root  45deg orientation foam side
+3,PXIe-4330,ai6,in,Strain Gauge,Quarter,350,2.13597,,15100F,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 1.510m from root 0deg orientation foam side
+3,PXIe-4330,ai7,in,Strain Gauge,Quarter,350,2.13597,,151090F,TRUE,10,,V/V,strain,,4.68E-01,0,0.0044,TRUE,TRUE,TRUE,FALSE,Strain gauge at 1.510m from root 90deg orientation foam side
+4,PXIe-4331,ai0,in,Strain Gauge,Full,1000,,,KP1,TRUE,10,,V/V,Pa,,3.83E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 1
+4,PXIe-4331,ai1,in,Strain Gauge,Full,1000,,,KP2,TRUE,10,,V/V,Pa,,3.52E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 2
+4,PXIe-4331,ai2,in,Strain Gauge,Full,1000,,,KP3,TRUE,10,,V/V,Pa,,4.12E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 3
+4,PXIe-4331,ai3,in,Strain Gauge,Full,1000,,,KP4,TRUE,10,,V/V,Pa,,3.76E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 4
+4,PXIe-4331,ai4,in,Strain Gauge,Full,1000,,,KP5,TRUE,10,,V/V,Pa,,3.46E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 5
+4,PXIe-4331,ai5,in,Strain Gauge,Full,1000,,,KP6,TRUE,10,,V/V,Pa,,1.04E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 6
+4,PXIe-4331,ai6,in,Strain Gauge,Full,1000,,,KP7,TRUE,10,,V/V,Pa,,3.43E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 7
+4,PXIe-4331,ai7,in,Strain Gauge,Full,1000,,,KP8,TRUE,10,,V/V,Pa,,3.44E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 8
+5,PXIe-4331,ai0,in,Strain Gauge,Full,1000,,,KP9,TRUE,10,,V/V,Pa,,3.44E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 9
+5,PXIe-4331,ai1,in,Strain Gauge,Full,1000,,,KP10,TRUE,10,,V/V,Pa,,3.44E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 10
+5,PXIe-4331,ai2,in,Strain Gauge,Full,1000,,,KP11,TRUE,10,,V/V,Pa,,3.44E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 11
+5,PXIe-4331,ai3,in,Strain Gauge,Full,1000,,,KP12,TRUE,10,,V/V,Pa,,3.49E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 12
+5,PXIe-4331,ai4,in,Strain Gauge,Full,1000,,,KP13,TRUE,10,,V/V,Pa,,3.45E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 13
+5,PXIe-4331,ai5,in,Strain Gauge,Full,1000,,,KP14,TRUE,10,,V/V,Pa,,9.85E+05,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 14
+5,PXIe-4331,ai6,in,Strain Gauge,Full,1000,,,KP15,TRUE,10,,V/V,Pa,,3.46E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 15
+5,PXIe-4331,ai7,in,Strain Gauge,Full,1000,,,KP16,TRUE,10,,V/V,Pa,,3.83E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 16
+6,PXIe-4331,ai0,in,Strain Gauge,Full,1000,,,KP17,TRUE,10,,V/V,Pa,,3.45E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 17
+6,PXIe-4331,ai1,in,Strain Gauge,Full,1000,,,KP18,TRUE,10,,V/V,Pa,,3.15E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 18
+6,PXIe-4331,ai2,in,Strain Gauge,Full,1000,,,KP19,TRUE,10,,V/V,Pa,,3.84E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 19
+6,PXIe-4331,ai3,in,Strain Gauge,Full,1000,,,KP20,TRUE,10,,V/V,Pa,,3.45E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 20
+6,PXIe-4331,ai4,in,Strain Gauge,Full,1000,,,KP21,TRUE,10,,V/V,Pa,,3.43E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 21
+6,PXIe-4331,ai5,in,Strain Gauge,Full,1000,,,KP22,TRUE,10,,V/V,Pa,,3.45E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 22
+6,PXIe-4331,ai6,in,Strain Gauge,Full,1000,,,KP23,TRUE,10,,V/V,Pa,,3.46E+06,0,1.00E+00,FALSE,FALSE,TRUE,FALSE,Kulite 23
+7,PXIe-4499,ai0,in,Accelerometer,,,,,ST12_TZ,TRUE,10,,V,ms^-2,0.1033,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 12 leading edge triaxial Z-direction at 2.280m
+7,PXIe-4499,ai1,in,Accelerometer,,,,,ST12_TY,TRUE,10,,V,ms^-2,0.1054,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 12 leading edge triaxial Y-direction at 2.280m
+7,PXIe-4499,ai2,in,Accelerometer,,,,,ST12_TX,TRUE,10,,V,ms^-2,0.1077,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 12 leading edge triaxial X-direction at 2.280m
+7,PXIe-4499,ai3,in,Accelerometer,,,,,ST12_UZ,TRUE,10,,V,ms^-2,0.0097,0,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 12 trailing edge uniaxial Z-direction at 2.326m
+7,PXIe-4499,ai4,in,Accelerometer,,,,,ST11_TZ,TRUE,10,,V,ms^-2,0.1048,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 11 leading edge triaxial Z-direction at 2.057m
+7,PXIe-4499,ai5,in,Accelerometer,,,,,ST11_TY,TRUE,10,,V,ms^-2,0.1011,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 11 leading edge triaxial Y-direction at 2.057m
+7,PXIe-4499,ai6,in,Accelerometer,,,,,ST11_TX,TRUE,10,,V,ms^-2,0.1051,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 11 leading edge triaxial X-direction at 2.057m
+7,PXIe-4499,ai7,in,Accelerometer,,,,,ST11_UZ,TRUE,10,,V,ms^-2,0.0097,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 11 trailing edge uniaxial Z-direction at 2.057m
+7,PXIe-4499,ai8,in,Accelerometer,,,,,ST8_TZ,TRUE,10,,V,ms^-2,0.1063,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 08 leading edge triaxial Z-direction at 1.414m
+7,PXIe-4499,ai9,in,Accelerometer,,,,,ST8_TY,TRUE,10,,V,ms^-2,0.1052,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 08 leading edge triaxial Y-direction at 1.414m
+7,PXIe-4499,ai10,in,Accelerometer,,,,,ST8_UZ,TRUE,10,,V,ms^-2,0.0996,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 08 trailing edge uniaxial Z-direction at 1.420m
+7,PXIe-4499,ai11,in,Accelerometer,,,,,ST5_TZ,TRUE,10,,V,ms^-2,0.1056,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 05 leading edge triaxial Z-direction at 0.949m
+7,PXIe-4499,ai12,in,Accelerometer,,,,,ST5_TY,TRUE,10,,V,ms^-2,0.1025,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 05 leading edge triaxial Y-direction at 0.949m
+7,PXIe-4499,ai13,in,Accelerometer,,,,,ST5_UZ,TRUE,10,,V,ms^-2,0.0984,1,0,5.00E+00,FALSE,TRUE,FALSE,FALSE,Accelerometer panel 05 trailing edge uniaxial Z-direction at 0.948m
+7,PXIe-4500,ai14,in,Accelerometer,,,,,F_ROOT,TRUE,10,,V,N,2.30E-03,1,0,1.00E+03,FALSE,TRUE,FALSE,FALSE,Force sensor at root of strut
+7,PXIe-4501,ai15,in,Accelerometer,,,,,F_Wing,TRUE,10,,V,N,2.30E-03,1,0,1.00E+03,FALSE,TRUE,FALSE,FALSE,Force sensor at wing end of strut
+8,PXIe-6363,ai1,in,Voltage,,,,10,Shaker_Input,TRUE,10,,V,V,,1,0,1.00E+00,FALSE,TRUE,FALSE,FALSE,Shaker Voltage Input
+8,PXIe-6363,port0/line0,in,Digital,,,,,IsMassForward,,,,V,,,1,0,1.00E+00,FALSE,TRUE,FALSE,FALSE,mass pos limit switch
+8,PXIe-6363,ao0,out,Voltage,,,,10,Shaker_Output,,-,,V,,,-,-,,FALSE,TRUE,FALSE,FALSE,Shaker Control
+8,PXIe-6363,port0/line1,out,Digital,,,,5,Mass_Trigger,,-,,V,,,-,-,,FALSE,TRUE,FALSE,FALSE,Mass Trigger

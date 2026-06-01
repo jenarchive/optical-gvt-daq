@@ -1,0 +1,2 @@
+streamlit==1.28
+interval_timer==1.0
