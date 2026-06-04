@@ -2,7 +2,7 @@
 % during testing
 
 
-%% clear all objects and clear all timers
+%% clear all objects and clear all timers 세션 초기화 
 clear all
 t = timerfindall;
 for i =1:length(t)
@@ -11,7 +11,7 @@ end
 clear all;
 pause(1)
 
-%% setup HARW DAQ object
+%% setup HARW DAQ object 하드웨어 연결 및 시작
 hw = smm.HARW('192.168.1.25','localhost',HealthHost='192.168.1.23',smmPort=5000); % create object
 hw.Connect; % connect to ACAPS
 hw.StartDAQ; % start the data aquisition
@@ -29,15 +29,3 @@ hw.StartDAQ; % start the data aquisition
 % hw.SetChirp(0,20,1,50); % CHIRP20 setup: 50 second chirp, 0-20Hz, 1V amplitude
 % hw.SetChirp(0,30,0.75,40); % CHIRP30 setup: 40 second chirp, 0-30Hz, 0.75V amplitude
 % hw.Peek; see last row of data in the data buffer
-
-
-
-
-
-
-
-
-
-
-
-

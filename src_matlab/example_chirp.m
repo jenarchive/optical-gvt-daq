@@ -1,46 +1,81 @@
-%% script to test the function to generate a chrip signal
+%% Simple InfluxDB 3 Core Test
 
-Freqs = [0 30];  % start and end freqeuncy of the chirp
-Duration = 40;      % Chirp Duration
-StartDelay = 0;     % delay at start of signal before chirp starts
-Burst = 0.9;        % percentage of duration over which chirp occurs 
-%                       e.g.(0.9 and 40s chirp mean chirp will be in first 36s of signal)
-dt = 1/1000;        % period
+clear;
+clc;
 
-% option 1
-Type = "Linear";    % type of chirp
-Window = "Hann";    % windowwing function to apply to chirp
+%% Config
 
-% option 2
-Band = 2;           % for Tukey window, specifies number of seconds to get to max output
-Type = "Linear";    % type of chirp
-Window = "Tukey"; % windowwing function to apply to chirp
+host = 'http://localhost:8181';
 
+token = 'apiv3_X-YcH5CWvEYkkjDXILY0qhmm9W5jJR0FCgsxWOY_Z4EdHBvGNfiHBIu8fDZU7uujJ87ehrZTlSFLHWJuBxAUCQ';
 
+bucket = 'matlab_data';
 
-[x,t,t_idx,x_chirp,f_chirp,w_chirp] = shaker.ChirpGenerator(Freqs(1),Freqs(2),Duration,dt,...
-    "BurstPercentage",Burst,"StartDelay",StartDelay,"Type",Type,"Window",Window,"WindowBand",Band);
+org = 'my-org';
 
-% 
-% f = figure(1);
-% clf;
-% plot(t,x);
+%% Generate fake data
 
-f = figure(2);
-clf;
-tt = tiledlayout(2,2);
-nexttile(1);
-plot(t,x);
-xlabel('time [s]')
-title('Chirp Signal')
-nexttile(3);
-t_chirp = t(t_idx)-min(t(t_idx));
-plot(t_chirp,w_chirp);
-xlabel('time [s]')
-title('Window Function')
-nexttile(2,[2,1])
-[f,P1] = farg.signal.psd(x_chirp,1/dt);
-plot(f,P1);
-xlim([0 max(Freqs)+5])
-xlabel('Freq [Hz]')
-title('PSD')
+value = rand();
+
+timestamp_ns = int64(posixtime(datetime('now')) * 1e9);
+
+line = sprintf( ...
+    'test_signal,sensor=matlab value=%f %d', ...
+    value, ...
+    timestamp_ns);
+
+%% Write data
+
+fprintf('Writing data...\n');
+
+writeUrl = sprintf( ...
+    '%s/api/v2/write?bucket=%s&org=%s&precision=ns', ...
+    host, ...
+    bucket, ...
+    org);
+
+options = weboptions( ...
+    'HeaderFields', { ...
+    'Authorization', ['Token ' token] ...
+    }, ...
+    'RequestMethod', 'post', ...
+    'ContentType', 'text', ...
+    'Timeout', 10);
+
+webwrite(writeUrl, line, options);
+
+fprintf('Write successful!\n');
+
+pause(1);
+
+%% Query data
+
+fprintf('Running query...\n');
+
+queryUrl = sprintf( ...
+    '%s/api/v3/query_sql?format=json', ...
+    host);
+
+queryBody = struct;
+
+queryBody.db = bucket;
+
+queryBody.q = ...
+    'SELECT * FROM test_signal ORDER BY time DESC LIMIT 5';
+
+queryOptions = weboptions( ...
+    'HeaderFields', { ...
+    'Authorization', ['Token ' token] ...
+    }, ...
+    'MediaType', 'application/json', ...
+    'RequestMethod', 'post', ...
+    'Timeout', 10);
+
+result = webwrite( ...
+    queryUrl, ...
+    queryBody, ...
+    queryOptions);
+
+fprintf('Query successful!\n');
+
+disp(result);
