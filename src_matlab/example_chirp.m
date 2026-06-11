@@ -100,9 +100,21 @@ end
 
 fprintf('Simulation complete\n');
 
-%% test query builder
-InfluxQuery("wind_tunnel") ...
-    .getRun(run_name) ...
+%% test query builder & execution
+influx_url = "http://127.0.0.1:8181";
+influx_token = "apiv3_X-YcH5CWvEYkkjDXILY0qhmm9W5jJR0FCgsxWOY_Z4EdHBvGNfiHBIu8fDZU7uujJ87ehrZTlSFLHWJuBxAUCQ";
+
+clean_run_name = strtrim(run_name);
+clean_run_name = regexprep(clean_run_name, '\x00', '');
+
+queryObj = InfluxQuery("wind_tunnel_test", "socket_listener", influx_url, influx_token);
+
+retrieved_data = queryObj ...
+    .getRun(clean_run_name) ...
     .getTestPoint("point_1") ...
     .AddChannel("alpha") ...
-    .Build();
+    .Execute();
+
+if istable(retrieved_data) && ~isempty(retrieved_data)
+    disp(head(retrieved_data));
+end
