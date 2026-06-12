@@ -1,120 +1,46 @@
-%% Wind Tunnel Staircase Simulation (binary packet)
-clc;
-close all;
+%% script to test the function to generate a chrip signal
 
-%% UDP config
-telegraf_ip   = "127.0.0.1";
-telegraf_port = 8094;
-u = udpport("LocalPort", 0);
-cleanupObj = onCleanup(@() delete(u));
+Freqs = [0 30];  % start and end freqeuncy of the chirp
+Duration = 40;      % Chirp Duration
+StartDelay = 0;     % delay at start of signal before chirp starts
+Burst = 0.9;        % percentage of duration over which chirp occurs 
+%                       e.g.(0.9 and 40s chirp mean chirp will be in first 36s of signal)
+dt = 1/1000;        % period
 
-%% simulation settings
-run_name = "run_" + string(datetime('now'), 'yyyyMMdd_HHmmSS');
-base_velocities = [30 50 70];
-alpha_sweeps    = [2 4 6];
+% option 1
+Type = "Linear";    % type of chirp
+Window = "Hann";    % windowwing function to apply to chirp
 
-[V_grid, A_grid] = meshgrid(base_velocities, alpha_sweeps);
-test_combinations = [V_grid(:), A_grid(:)];
-sec_per_point = 4;
+% option 2
+Band = 2;           % for Tukey window, specifies number of seconds to get to max output
+Type = "Linear";    % type of chirp
+Window = "Tukey"; % windowwing function to apply to chirp
 
-%% UI setup
-figure( ...
-    'Name',        'Wind Tunnel Monitor', ...
-    'NumberTitle', 'off', ...
-    'Position',    [100 100 900 700]);
 
-subplot(3,1,1);
-hV = animatedline( ...
-    'Color', 'k', ...
-    'LineWidth', 1.5);
-grid on;
-ylabel('Velocity');
-title(['Run : ' char(run_name)]);
 
-subplot(3,1,2);
-hA = animatedline( ...
-    'Color', 'r', ...
-    'LineWidth', 1.5);
-grid on;
-ylabel('Alpha');
+[x,t,t_idx,x_chirp,f_chirp,w_chirp] = shaker.ChirpGenerator(Freqs(1),Freqs(2),Duration,dt,...
+    "BurstPercentage",Burst,"StartDelay",StartDelay,"Type",Type,"Window",Window,"WindowBand",Band);
 
-subplot(3,1,3);
-hL = animatedline( ...
-    'Color', [0 0.5 0], ...
-    'LineWidth', 1.5);
-grid on;
-ylabel('Lift');
-xlabel('Samples');
+% 
+% f = figure(1);
+% clf;
+% plot(t,x);
 
-%% runtime
-startTime    = tic;
-last_plotted = 0;
-fprintf('Simulation started\n');
-
-%% real time loop
-while ishandle(gcf)
-    currentTime = toc(startTime);
-    point_idx = floor(currentTime / sec_per_point) + 1;
-    
-    if point_idx > size(test_combinations, 1)
-        break;
-    end
-    
-    current_v = test_combinations(point_idx, 1) + randn() * 0.1;
-    current_a = test_combinations(point_idx, 2) + randn() * 0.02;
-    current_l = 0.0015 * (current_v^2) * current_a;
-    
-    %% test point tag
-    tp_tag = "point_" + string(point_idx);
-    
-    %% UDP transmission binary packet conversion
-    base_bytes = [ ...
-        typecast(int16(point_idx), 'uint8'), ...
-        typecast(single(current_v), 'uint8'), ...
-        typecast(single(current_a), 'uint8'), ...
-        typecast(single(current_l), 'uint8') ...
-    ];
-    
-    run_id_bytes = [uint8(char(run_name)), uint8(0)];
-    tp_bytes     = [uint8(char(tp_tag)), uint8(0)];
-    
-    binary_packet = [base_bytes, run_id_bytes, tp_bytes];
-    
-    write( ...
-        u, ...
-        binary_packet, ...
-        "uint8", ...
-        telegraf_ip, ...
-        telegraf_port);
-        
-    fprintf('Point %d transmitted (%s) via Pure Binary Stream\n', point_idx, tp_tag);
-    
-    last_plotted = last_plotted + 1;
-    addpoints(hV, last_plotted, double(current_v));
-    addpoints(hA, last_plotted, double(current_a));
-    addpoints(hL, last_plotted, double(current_l));
-    drawnow limitrate;
-    
-    pause(1.0);
-end
-
-fprintf('Simulation complete\n');
-
-%% test query builder & execution
-influx_url = "http://127.0.0.1:8181";
-influx_token = "apiv3_X-YcH5CWvEYkkjDXILY0qhmm9W5jJR0FCgsxWOY_Z4EdHBvGNfiHBIu8fDZU7uujJ87ehrZTlSFLHWJuBxAUCQ";
-
-clean_run_name = strtrim(run_name);
-clean_run_name = regexprep(clean_run_name, '\x00', '');
-
-queryObj = InfluxQuery("wind_tunnel_test", "socket_listener", influx_url, influx_token);
-
-retrieved_data = queryObj ...
-    .getRun(clean_run_name) ...
-    .getTestPoint("point_1") ...
-    .AddChannel("alpha") ...
-    .Execute();
-
-if istable(retrieved_data) && ~isempty(retrieved_data)
-    disp(head(retrieved_data));
-end
+f = figure(2);
+clf;
+tt = tiledlayout(2,2);
+nexttile(1);
+plot(t,x);
+xlabel('time [s]')
+title('Chirp Signal')
+nexttile(3);
+t_chirp = t(t_idx)-min(t(t_idx));
+plot(t_chirp,w_chirp);
+xlabel('time [s]')
+title('Window Function')
+nexttile(2,[2,1])
+[f,P1] = farg.signal.psd(x_chirp,1/dt);
+plot(f,P1);
+xlim([0 max(Freqs)+5])
+xlabel('Freq [Hz]')
+title('PSD')
