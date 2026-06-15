@@ -3,7 +3,7 @@ classdef InfluxQuery < handle
         Channels (:,1) string
         Database string
         Measurement string
-        Tags (1,:) InfluxTag
+        Tags InfluxTag = InfluxTag.empty() 
         ServerURL string
         Token string
         AggregateFunc = "NONE"
@@ -27,13 +27,13 @@ classdef InfluxQuery < handle
             end
         end
         
-        function getTag(obj, name, value)
+        function obj = getTag(obj, name, value)
             if isempty(obj.Tags)
                 obj.Tags = InfluxTag(name, value);
             else
-                idx = ismember([obj.Tags.Name], name);
+                idx = ismember(string([obj.Tags.Name]), string(name));
                 if any(idx)
-                    obj.Tags(idx).Value = value;
+                    obj.Tags(idx).Value = string(value);
                 else
                     obj.Tags(end + 1) = InfluxTag(name, value);
                 end
@@ -41,17 +41,14 @@ classdef InfluxQuery < handle
         end
         
         function obj = getRun(obj, value)
-            obj.getTag("run_id", value);
+            obj = obj.getTag("run_id", value);
         end
         
         function obj = getTestPoint(obj, value)
-            obj.getTag("test_point", value);
+            obj = obj.getTag("test_point", value);
         end
         
         function obj = AddChannel(obj, name)
-            if isempty(obj.Channels)
-                obj.Channels = string.empty;
-            end
             if ~ismember(name, obj.Channels)
                 obj.Channels(end + 1) = name;
             end
@@ -69,11 +66,8 @@ classdef InfluxQuery < handle
                 channelStr = strjoin(obj.Channels, ", ");
             end
             
-            % sql select clause
-            QueryString = sprintf('SELECT %s FROM "%s"', ...
-                channelStr, obj.Measurement);
+            QueryString = sprintf('SELECT %s FROM "%s"', channelStr, obj.Measurement);
             
-            % tags
             if ~isempty(obj.Tags)
                 conditions = strings(1, numel(obj.Tags));
                 for i = 1:numel(obj.Tags)
@@ -85,24 +79,20 @@ classdef InfluxQuery < handle
         
         function data = Execute(obj)
             queryString = obj.Build();
+            
             endpoint = string(obj.ServerURL) + "/api/v3/query_sql";
-            options = weboptions( ...
-                'HeaderFields', ["Authorization", "Bearer " + string(obj.Token)], ...
-                'RequestMethod', 'post', ...
-                'ContentType', 'json', ...
-                'Timeout', 30);
+            options = weboptions('HeaderFields', ["Authorization", "Bearer " + string(obj.Token)], ...
+                'RequestMethod', 'post', 'ContentType', 'json', 'Timeout', 30);
             payload = struct('db', obj.Database, 'q', queryString);
+            
             try
                 raw_data = webwrite(endpoint, payload, options);
-                data = struct2table(raw_data);
-                if ismember("time", data.Properties.VariableNames)
-                    data.time = datetime( ...
-                        data.time, ...
-                        'InputFormat', "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", ...
-                        'TimeZone', 'UTC');
+                if isempty(raw_data)
+                    data = table();
+                else
+                    data = struct2table(raw_data);
                 end
-            catch ME
-                disp("Execution failed: " + ME.message);
+            catch
                 data = table();
             end
         end
