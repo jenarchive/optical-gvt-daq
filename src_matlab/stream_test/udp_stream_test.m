@@ -34,7 +34,7 @@ conf_template = sprintf([ ...
     '  service_address = "udp://:%d"\n' ...
     '  data_format = "binary"\n' ...
     '  endianness = "le"\n' ...
-    '  fielddrop = ["id"]\n\n' ...
+    '  fieldexclude = ["packet_counter"]\n\n' ...
     '  [[inputs.socket_listener.binary]]\n' ...
     '    metric_name = "%s"\n\n'], ...
     server_url, token, org_name, db_name, ...
@@ -43,12 +43,15 @@ conf_template = sprintf([ ...
 fprintf(fid, '%s', conf_template);
 
 entries = {
-    'id',         'int16',   'field', '';
-    'velocity',   'float32', 'field', '';
-    'alpha',      'float32', 'field', '';
-    'lift',       'float32', 'field', '';
-    'run_id',     'string',  'tag',   'terminator = "null"';
-    'test_point', 'string',  'tag',   'terminator = "null"'
+    'packet_counter', 'uint32',  'field', '';
+    'velocity',       'float32', 'field', '';
+    'alpha',          'float32', 'field', '';
+    'lift',           'float32', 'field', '';
+    'drag',           'float32', 'field', '';
+    'dyn_pressure',   'float32', 'field', '';
+    'temperature',    'float32', 'field', '';
+    'run_id',         'string',  'tag',   'terminator = "null"';
+    'test_point',     'string',  'tag',   'terminator = "null"'
 };
 
 for k = 1:size(entries, 1)
@@ -112,38 +115,33 @@ while ishandle(gcf)
         break;
     end
 
-    current_vals = test_combinations(point_idx, :) + ...
-                   randn(1,3) .* [0.1, 0.02, 0.01];
+    % simulated sensor data
+    vel = single(test_combinations(point_idx, 1) + randn*0.1);
+    alp = single(test_combinations(point_idx, 2) + randn*0.02);
+    lft = single(test_combinations(point_idx, 3) + randn*0.01);
+    drg = single(lft * 0.1);
+    dyp = single(0.5 * 1.225 * vel^2);
+    tmp = single(25.0 + randn*0.1);
 
     tp_tag = "point_" + string(point_idx);
 
-    base_bytes = typecast(int16(point_idx), 'uint8');
+    % binary packet construction
+    packet_bytes = typecast(uint32(point_idx), 'uint8');
+    packet_bytes = [packet_bytes, typecast([vel, alp, lft, drg, dyp, tmp], 'uint8')];
+    packet_bytes = [packet_bytes, uint8(char(run_name)), uint8(0), uint8(char(tp_tag)), uint8(0)];
 
-    for i = 1:3
-        base_bytes = [base_bytes, ...
-                      typecast(single(current_vals(i)), 'uint8')];
-    end
-
-    binary_packet = [ ...
-        base_bytes, ...
-        uint8(char(run_name)), uint8(0), ...
-        uint8(char(tp_tag)), uint8(0)];
-
-    write(u, binary_packet, "uint8", ...
-          telegraf_ip, telegraf_port);
+    write(u, packet_bytes, "uint8", telegraf_ip, telegraf_port);
 
     if point_idx ~= prev_point_idx
-        fprintf('Point %d transmitted (%s)\n', ...
-                point_idx, tp_tag);
+        fprintf('Point %d transmitted (%s)\n', point_idx, tp_tag);
         prev_point_idx = point_idx;
     end
 
     last_plotted = last_plotted + 1;
 
-    for i = 1:3
-        addpoints(lines(i), last_plotted, ...
-                  double(current_vals(i)));
-    end
+    addpoints(lines(1), last_plotted, double(vel));
+    addpoints(lines(2), last_plotted, double(alp));
+    addpoints(lines(3), last_plotted, double(lft));
 
     drawnow limitrate;
     pause(0.5);
@@ -153,40 +151,48 @@ end
 disp("Simulation completed");
 
 %% export results
-disp("Processing data and exporting to Excel...");
+disp("Processing data from DB and exporting...");
 
-total_samples = height(all_data);
-samples_per_point = floor(total_samples / num_points);
+pause(5);
 
 summary_table = table();
-query_channels = string(lower(exp_matrix.Properties.VariableNames));
+query_channels = ["velocity", "alpha", "lift", "drag", "dyn_pressure", "temperature"];
 
 for i = 1:num_points
 
     tp_name = "point_" + string(i);
 
-    idx_start = (i - 1) * samples_per_point + 1;
+    q = InfluxQuery(db_name, measurement_name, server_url, token);
+    q = q.setAggregation("MEAN");
+    q = q.getRun(run_name).getTestPoint(tp_name);
 
-    if i == num_points
-        idx_end = total_samples;
-    else
-        idx_end = i * samples_per_point;
+    for ch = query_channels
+        q = q.AddChannel(ch);
     end
 
-    segment = all_data(idx_start:idx_end, :);
+    avg_data = q.Execute();
 
-    mean_vals = mean(segment{:, query_channels});
+    if ~isempty(avg_data)
 
-    new_row = table( ...
-        {string(run_name)}, ...
-        {string(tp_name)}, ...
-        mean_vals(1), ...
-        mean_vals(2), ...
-        mean_vals(3), ...
-        'VariableNames', ...
-        ["RunID", "TestPoint", query_channels]);
+        new_row = table( ...
+            {string(run_name)}, ...
+            {string(tp_name)}, ...
+            avg_data{1,1}, ...
+            avg_data{1,2}, ...
+            avg_data{1,3}, ...
+            avg_data{1,4}, ...
+            avg_data{1,5}, ...
+            avg_data{1,6}, ...
+            'VariableNames', ...
+            ["RunID", "TestPoint", query_channels]);
 
-    summary_table = [summary_table; new_row];
+        summary_table = [summary_table; new_row];
+
+    else
+
+        fprintf('Warning: No data for %s (RunID: %s)\n', tp_name, run_name);
+
+    end
 
 end
 
@@ -194,22 +200,13 @@ out_file = "WindTunnel_Master_Result.xlsx";
 
 if ~isempty(summary_table)
 
-    if exist(out_file, 'file')
-        writetable(summary_table, out_file, ...
-                   'WriteMode', 'Append', ...
-                   'WriteVariableNames', false);
+    writetable(summary_table, out_file);
 
-        disp("Data appended to master Excel file.");
-
-    else
-        writetable(summary_table, out_file);
-
-        disp("Master Excel file created.");
-    end
-
-    disp("=== Final Processed Data ===");
+    disp("Data exported.");
     disp(summary_table);
 
 else
-    disp("No data available for export.");
+
+    disp("No data available. Check if InfluxDB has received the data.");
+
 end
