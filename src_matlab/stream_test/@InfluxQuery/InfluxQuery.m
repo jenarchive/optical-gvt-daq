@@ -1,12 +1,14 @@
 classdef InfluxQuery < handle
     properties
-        Channels (:,1) string
+        Channels string = strings(0,1)
         Database string
         Measurement string
-        Tags InfluxTag = InfluxTag.empty() 
+        Tags cell = {}
         ServerURL string
         Token string
         AggregateFunc = "NONE"
+        StartTime string = ""
+        EndTime string = ""
     end
     
     methods
@@ -18,37 +20,44 @@ classdef InfluxQuery < handle
         end
         
         function obj = setAggregation(obj, func)
-            valid = ["MEAN", "MAX", "MIN", "SUM", "NONE"];
+            valid = ["AVG", "MAX", "MIN", "SUM", "COUNT", "NONE"];
             func = upper(func);
             if ismember(func, valid)
                 obj.AggregateFunc = func;
             else
-                error("Unsupported aggregation function. Choose one of: MEAN, MAX, MIN, SUM, NONE.");
+                error("Unsupported aggregation function. Choose one of: AVG, MAX, MIN, SUM, COUNT, NONE.");
             end
         end
         
-        function obj = getTag(obj, name, value)
-            if isempty(obj.Tags)
-                obj.Tags = InfluxTag(name, value);
-            else
-                idx = ismember(string([obj.Tags.Name]), string(name));
-                if any(idx)
-                    obj.Tags(idx).Value = string(value);
-                else
-                    obj.Tags(end + 1) = InfluxTag(name, value);
+        function obj = setTimeRange(obj, startTime, endTime)
+            obj.StartTime = string(startTime);
+            obj.EndTime = string(endTime);
+        end
+        
+        function obj = addTag(obj, name, value)
+            safe_value = strrep(string(value), "'", "''");
+            found = false;
+            for i = 1:numel(obj.Tags)
+                if strcmp(obj.Tags{i}.Name, name)
+                    obj.Tags{i}.Value = safe_value;
+                    found = true;
+                    break;
                 end
+            end
+            if ~found
+                obj.Tags{end + 1} = struct('Name', string(name), 'Value', safe_value);
             end
         end
         
         function obj = getRun(obj, value)
-            obj = obj.getTag("run_id", value);
+            obj = obj.addTag("run_id", value);
         end
         
         function obj = getTestPoint(obj, value)
-            obj = obj.getTag("test_point", value);
+            obj = obj.addTag("test_point", value);
         end
         
-        function obj = AddChannel(obj, name)
+        function obj = addChannel(obj, name)
             if ~ismember(name, obj.Channels)
                 obj.Channels(end + 1) = name;
             end
@@ -60,19 +69,35 @@ classdef InfluxQuery < handle
             end
             
             if obj.AggregateFunc ~= "NONE"
-                aggChannels = obj.AggregateFunc + "(" + obj.Channels + ")";
+                aggChannels = strings(size(obj.Channels));
+                for idx = 1:numel(obj.Channels)
+                    ch = obj.Channels(idx);
+                    aggChannels(idx) = obj.AggregateFunc + '("' + ch + '") AS "' + ch + '"';
+                end
                 channelStr = strjoin(aggChannels, ", ");
             else
-                channelStr = strjoin(obj.Channels, ", ");
+                channelStr = strjoin('"' + obj.Channels + '"', ", ");
             end
             
             QueryString = sprintf('SELECT %s FROM "%s"', channelStr, obj.Measurement);
             
+            conditions = strings(0);
+            
             if ~isempty(obj.Tags)
-                conditions = strings(1, numel(obj.Tags));
                 for i = 1:numel(obj.Tags)
-                    conditions(i) = obj.Tags(i).Name + "='" + string(obj.Tags(i).Value) + "'";
+                    conditions(end+1) = '"' + obj.Tags{i}.Name + '"' + "='" + obj.Tags{i}.Value + "'";
                 end
+            end
+            
+            if strlength(obj.StartTime) > 0 && strlength(obj.EndTime) > 0
+                conditions(end+1) = "time >= '" + obj.StartTime + "' AND time <= '" + obj.EndTime + "'";
+            elseif strlength(obj.StartTime) > 0
+                conditions(end+1) = "time >= '" + obj.StartTime + "'";
+            elseif strlength(obj.EndTime) > 0
+                conditions(end+1) = "time <= '" + obj.EndTime + "'";
+            end
+            
+            if ~isempty(conditions)
                 QueryString = QueryString + " WHERE " + strjoin(conditions, " AND ");
             end
         end
@@ -90,9 +115,18 @@ classdef InfluxQuery < handle
                 if isempty(raw_data)
                     data = table();
                 else
-                    data = struct2table(raw_data);
+                    if isstruct(raw_data)
+                        data = struct2table(raw_data, 'AsArray', true);
+                    elseif iscell(raw_data) && ~isempty(raw_data) && isstruct(raw_data{1})
+                        data = struct2table([raw_data{:}], 'AsArray', true);
+                    elseif istable(raw_data)
+                        data = raw_data;
+                    else
+                        data = table();
+                    end
                 end
-            catch
+            catch ME
+                warning('Database query failed: %s', ME.message);
                 data = table();
             end
         end
