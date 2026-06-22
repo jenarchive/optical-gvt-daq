@@ -13,7 +13,7 @@ end
 %% configuration section (uncomment only the variables you want)
 % startTime = "2026-06-16T13:00:00Z"; % get data between two times
 % endTime   = "2026-06-16T14:00:00Z"; % InfluxDB uses UTC (11:00 BST -> 10:00 UTC)
-% run_ids = ["run_20260616_1258", "run_20260616_1322", "run_20260616_1415"]; % get data for these runs
+% run_ids = ["run_20260616_1258", "run_20260616_1322"]; % get data for these runs
 
 output_file = "wt_run_records.xlsx";
 query_performed = false; 
