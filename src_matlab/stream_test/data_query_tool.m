@@ -3,6 +3,7 @@ clc;
 clear;
 close all;
 excel_file = 'telegraf_settings.xlsx';
+
 try
     tbl1 = readtable(excel_file, 'Sheet', 'Sheet1');
     cfg = cell2struct(tbl1.Value, tbl1.Key, 1);
@@ -11,28 +12,45 @@ catch
 end
 
 %% configuration section (uncomment only the variables you want)
-% startTime = "2026-06-16T13:00:00Z"; % get data between two times
-% endTime   = "2026-06-16T14:00:00Z"; % InfluxDB uses UTC (11:00 BST -> 10:00 UTC)
-% run_ids = ["run_20260616_1258", "run_20260616_1322"]; % get data for these runs
-
+% startTime = "2026-06-22T10:00:00Z"; % get data between two times
+% endTime   = "2026-06-22T11:00:00Z"; % InfluxDB uses UTC (11:00 BST -> 10:00 UTC)
+% run_ids = ["run_260622_111509", "run_260622_110829"]; % get data for these runs
 output_file = "wt_run_records.xlsx";
 query_performed = false; 
 
-%% get dynamic channels from sheet3
-function channels = get_dynamic_channels(excel_file)
+do_time_query = exist('startTime', 'var') && exist('endTime', 'var') && ~isempty(startTime);
+do_run_query = exist('run_ids', 'var') && ~isempty(run_ids);
+
+if exist(output_file, 'file')
     try
-        sensor_tbl = readtable(excel_file, 'Sheet', 'Sheet3');
-        exclude_cols = {'run_id', 'test_point', 'packet_counter'};
-        is_channel = ~ismember(sensor_tbl.Name, exclude_cols);
-        channels = string(sensor_tbl.Name(is_channel));
+        existing_sheets = sheetnames(output_file);
+        if ismember('Sheet1', existing_sheets)
+            sheet1_backup = readtable(output_file, 'Sheet', 'Sheet1');
+        end
+        if ~do_time_query && ismember('Sheet2', existing_sheets)
+            sheet2_backup = readtable(output_file, 'Sheet', 'Sheet2');
+        end
+        if ~do_run_query && ismember('Sheet3', existing_sheets)
+            sheet3_backup = readtable(output_file, 'Sheet', 'Sheet3');
+        end
+        
+        delete(output_file);
+        
+        if exist('sheet1_backup', 'var')
+            writetable(sheet1_backup, output_file, 'Sheet', 'Sheet1');
+        end
+        if exist('sheet2_backup', 'var')
+            writetable(sheet2_backup, output_file, 'Sheet', 'Sheet2');
+        end
+        if exist('sheet3_backup', 'var')
+            writetable(sheet3_backup, output_file, 'Sheet', 'Sheet3');
+        end
     catch
-        warning('Failed to load dynamic channels from Sheet3. Using default.');
-        channels = ["velocity", "alpha", "lift"];
     end
 end
 
 %% time range query
-if exist('startTime', 'var') && exist('endTime', 'var') && ~isempty(startTime)
+if do_time_query
     fprintf('--- Starting Time Range Query (Sheet2) ---\n');
     q1 = InfluxQuery(cfg.Bucket, cfg.Measurement_Name, cfg.InfluxDB_URL, cfg.Token);
     try
@@ -66,7 +84,7 @@ if exist('startTime', 'var') && exist('endTime', 'var') && ~isempty(startTime)
 end
 
 %% multi run id query
-if exist('run_ids', 'var') && ~isempty(run_ids)
+if do_run_query
     fprintf('--- Starting Multi-Run ID Query (Sheet3) ---\n');
     all_run_data = table(); 
     
@@ -119,4 +137,17 @@ if query_performed
     uiimport(output_file);
 else
     fprintf('\n[Info] No valid data retrieved. Nothing to import.\n');
+end
+
+%% get dynamic channels from sheet3
+function channels = get_dynamic_channels(excel_file)
+    try
+        sensor_tbl = readtable(excel_file, 'Sheet', 'Sheet3');
+        exclude_cols = {'run_id', 'test_point', 'packet_counter'};
+        is_channel = ~ismember(sensor_tbl.Name, exclude_cols);
+        channels = string(sensor_tbl.Name(is_channel));
+    catch
+        warning('Failed to load dynamic channels from Sheet3. Using default.');
+        channels = ["velocity", "alpha", "lift"];
+    end
 end

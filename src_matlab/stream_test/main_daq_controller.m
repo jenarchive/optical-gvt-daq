@@ -50,7 +50,6 @@ clear closeTelegrafFile;
 u = udpport("LocalPort", 0);
 cleanupObj = onCleanup(@() delete(u));
 
-% 연도가 2자리(yy)로 나오도록 수정
 run_name = "run_" + string(datetime('now'), 'yyMMdd_HHmmss'); 
 sim_start_dt = datetime('now', 'TimeZone', 'local');
 sim_start_time = string(sim_start_dt, 'yyyy-MM-dd''T''HH:mm:ssXXX'); 
