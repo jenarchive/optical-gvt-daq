@@ -2,7 +2,17 @@
 
 A **MATLAB-based Data Acquisition (DAQ) and Query System** for streaming real-time wind tunnel sensor data via UDP binary packets, processing it with Telegraf, storing it in InfluxDB, and performing time-series analysis.
 
----
+<p align="center">
+  <a href="./Internship_Project_Report_Jen_Lee.pdf">
+    <img src="./Internship_Project_Report_Jen_Lee_prv.png" width="750" alt="Internship Project Report Preview">
+  </a>
+</p>
+
+<p align="center">
+  <a href="./Internship_Project_Report_Jen_Lee.pdf">
+    <strong>📄 View Full Internship Project Report (PDF)</strong>
+  </a>
+</p>
 
 ## Key Features
 
